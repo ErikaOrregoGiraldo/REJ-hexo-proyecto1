@@ -27,6 +27,12 @@ const toString = (result: any, options: StoreFunctionData) => {
   return result;
 };
 
+// Nuevo método para validación extraído
+const validateData = (data: StoreFunctionData): void => {
+  if (!data) throw new TypeError('No input file or string!');
+  if (data.text == null && !data.path) throw new TypeError('No input file or string!');
+};
+
 class Render {
   public context: Hexo;
   public renderer: Renderer;
@@ -56,25 +62,20 @@ class Render {
     return this.getRenderer(ext, true);
   }
 
-  render(data: StoreFunctionData, callback?: NodeJSLikeCallback<any>): Promise<any>;
-  render(data: StoreFunctionData, options: any, callback?: NodeJSLikeCallback<any>): Promise<any>;
   render(data: StoreFunctionData, options?: any | NodeJSLikeCallback<any>, callback?: NodeJSLikeCallback<any>): Promise<any> {
-    if (!callback && typeof options === 'function') {
-      callback = options;
-      options = {};
-    }
+    // Refactorización para simplificar condicional
+    callback = typeof options === 'function' ? options : callback;
+    options = typeof options === 'function' ? {} : options;
 
     const ctx = this.context;
     let ext = '';
 
     let promise: Promise<string>;
 
-    if (!data) return Promise.reject(new TypeError('No input file or string!'));
+    validateData(data); // Uso del método extraído para validar
 
     if (data.text != null) {
       promise = Promise.resolve(data.text);
-    } else if (!data.path) {
-      return Promise.reject(new TypeError('No input file or string!'));
     } else {
       promise = readFile(data.path);
     }
@@ -103,16 +104,13 @@ class Render {
   }
 
   renderSync(data: StoreFunctionData, options = {}): any {
-    if (!data) throw new TypeError('No input file or string!');
+    validateData(data); // Uso del método extraído para validar
 
     const ctx = this.context;
 
     if (data.text == null) {
-      if (!data.path) throw new TypeError('No input file or string!');
       data.text = readFileSync(data.path);
     }
-
-    if (data.text == null) throw new TypeError('No input file or string!');
 
     const ext = data.engine || getExtname(data.path);
     let result;
