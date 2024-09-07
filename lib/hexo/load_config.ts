@@ -14,7 +14,13 @@ export = async (ctx: Hexo): Promise<void> => {
   const baseDir = ctx.base_dir;
   let configPath = ctx.config_path;
 
-  const path = await exists(configPath) ? configPath : await findConfigPath(configPath);
+  const path = await exists(configPath) ? configPath : await(async function(path: string): Promise<string> {
+    const { dir, name } = parse(path);
+    const files = await readdir(dir);
+    const item = files.find(item => item.startsWith(name));
+    if (item != null) return join(dir, item);
+  }(configPath));
+
   if (!path) return;
   configPath = path;
 
@@ -24,6 +30,7 @@ export = async (ctx: Hexo): Promise<void> => {
   ctx.log.debug('Config loaded: %s', magenta(tildify(configPath)));
 
   ctx.config = deepMerge(ctx.config, config);
+
   // If root is not exist, create it by config.url
   if (!config.root) {
     let { pathname } = new URL(ctx.config.url);
@@ -35,6 +42,7 @@ export = async (ctx: Hexo): Promise<void> => {
   validateConfig(ctx);
 
   ctx.config_path = configPath;
+
   // Trim multiple trailing '/'
   config.root = config.root.replace(/\/*$/, '/');
   // Remove any trailing '/'
@@ -65,11 +73,3 @@ export = async (ctx: Hexo): Promise<void> => {
   ctx.theme = new Theme(ctx, { ignored });
 
 };
-
-async function findConfigPath(path: string): Promise<string> {
-  const { dir, name } = parse(path);
-
-  const files = await readdir(dir);
-  const item = files.find(item => item.startsWith(name));
-  if (item != null) return join(dir, item);
-}
