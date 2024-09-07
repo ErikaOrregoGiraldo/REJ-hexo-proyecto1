@@ -26,21 +26,26 @@ function loadModuleList(ctx: Hexo, basedir: string): Promise<any> {
       return basedir === ctx.base_dir ? deps.concat(devDeps) : deps;
     });
   }).filter(name => {
-    // Ignore plugins whose name is not started with "hexo-"
-    if (!/^hexo-|^@[^/]+\/hexo-/.test(name)) return false;
-
-    // Ignore plugin whose name is started with "hexo-theme"
-    if (/^hexo-theme-|^@[^/]+\/hexo-theme-/.test(name)) return false;
-
-    // Ignore typescript definition file that is started with "@types/"
-    if (name.startsWith('@types/')) return false;
-
-    // Make sure the plugin exists
-    const path = ctx.resolvePlugin(name, basedir);
-    return exists(path);
+    return isValidPlugin(name, ctx, basedir);
   }).then(modules => {
     return Object.fromEntries(modules.map(name => [name, ctx.resolvePlugin(name, basedir)]));
   });
+}
+
+function isHexoPlugin(name: string): boolean {
+  return /^hexo-|^@[^/]+\/hexo-/.test(name);
+}
+
+function isHexoTheme(name: string): boolean {
+  return /^hexo-theme-|^@[^/]+\/hexo-theme-/.test(name);
+}
+
+function isTypeScriptDefinition(name: string): boolean {
+  return name.startsWith('@types/');
+}
+
+function isValidPlugin(name: string, ctx: Hexo, basedir: string) {
+  return isHexoPlugin(name) && !isHexoTheme(name) && !isTypeScriptDefinition(name) && exists(ctx.resolvePlugin(name, basedir));
 }
 
 function loadModules(ctx: Hexo) {
