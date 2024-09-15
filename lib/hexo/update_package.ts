@@ -20,6 +20,22 @@ export = (ctx: Hexo): Promise<void> => {
   });
 };
 
+/**
+ * Lee y valida el contenido de un archivo package.json.
+ *
+ * Este método verifica la existencia de un archivo package.json en la ruta especificada.
+ * Si el archivo existe, lo lee y convierte su contenido desde formato JSON a un objeto.
+ * Además, valida si el objeto contiene una propiedad 'hexo' de tipo objeto,
+ * lo que indica que es un archivo de configuración válido para Hexo.
+ *
+ * @param {string} path - La ruta completa del archivo package.json que se va a leer.
+ *
+ * @returns {Promise<any>} Una promesa que resuelve con el contenido del archivo
+ * package.json como un objeto, o `undefined` si el archivo no existe o no contiene
+ * una configuración válida de Hexo.
+ *
+ * @throws {Error} Si ocurre un error al leer o parsear el archivo JSON.
+ */
 function readPkg(path: string): Promise<any> {
   return exists(path).then(exist => {
     if (!exist) return;
