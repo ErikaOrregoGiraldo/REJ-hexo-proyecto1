@@ -81,11 +81,4 @@ export = function(ctx: Hexo) {
       {name: '--pretty', desc: 'Prettify JSON output'}
     ]
   }, require('./render'));
-
-  console.register('search', 'Search posts by title.', {
-    usage: '<title>',
-    arguments: [
-      {name: 'title', desc: 'Title of the post to search for.'}
-    ]
-  }, require('./search'));
 }
