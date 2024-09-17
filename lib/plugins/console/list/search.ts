@@ -7,18 +7,10 @@ function mapName(item) {
   return item.name;
 }
 
-function listPost(this: Hexo, args: any): void {
+function searchPost(this: Hexo): void {
   const Post = this.model('Post');
-  const searchQuery = args.title ? args.title.toLowerCase() : null; // Obtén el título a buscar
 
-  let posts = Post.sort({ published: -1, date: 1 });
-
-  // Filtrar por título si se proporciona un título
-  if (searchQuery) {
-    posts = posts.filter(post => post.title.toLowerCase().includes(searchQuery));
-  }
-
-  const data = posts.map(post => {
+  const data = Post.sort({published: -1, date: 1}).map(post => {
     const date = post.published ? post.date.format('YYYY-MM-DD') : 'Draft';
     const tags = post.tags.map(mapName);
     const categories = post.categories.map(mapName);
@@ -42,7 +34,7 @@ function listPost(this: Hexo, args: any): void {
   });
 
   console.log(t);
-  if (data.length === 1) console.log('No posts found.');
+  if (data.length === 1) console.log('No posts.');
 }
 
-export = listPost;
+export = searchPost;

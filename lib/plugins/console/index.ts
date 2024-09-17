@@ -31,12 +31,16 @@ export = function(ctx: Hexo) {
   }, require('./generate'));
 
   console.register('list', 'List the information of the site', {
-    desc: 'List the information of the site.',
-    usage: '<type>',
+    desc: 'List the information of the site, optionally filtering by title.',
+    usage: '<type> [--title]',
     arguments: [
-      {name: 'type', desc: 'Available types: page, post, route, tag, category'}
+      { name: 'type', desc: 'Available types: page, post, route, tag, category' }
+    ],
+    options: [
+      { name: '--title', desc: 'Search for posts by title.' }
     ]
   }, require('./list'));
+
 
   console.register('migrate', 'Migrate your site from other system to Hexo.', {
     init: true,
@@ -77,4 +81,11 @@ export = function(ctx: Hexo) {
       {name: '--pretty', desc: 'Prettify JSON output'}
     ]
   }, require('./render'));
+
+  console.register('search', 'Search posts by title.', {
+    usage: '<title>',
+    arguments: [
+      {name: 'title', desc: 'Title of the post to search for.'}
+    ]
+  }, require('./search'));
 }
